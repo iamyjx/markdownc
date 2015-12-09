@@ -16,7 +16,7 @@ import java.util.Iterator;
  */
 public class DefaultFileHelper implements FileHelper {
     private final Log logger= LogFactory.getLog(this.getClass());
-    public static final String DEFAULT_ENCODING="utf-8";
+
 
 
     public String read(File sourceFile) {
@@ -77,5 +77,16 @@ public class DefaultFileHelper implements FileHelper {
     }
     public Collection<File> list(File directory, String[] extensions) {
        return FileUtils.listFiles(directory,extensions,true);
+    }
+
+    public void copyTo(File file, File destDirectory) {
+        try {
+            FileUtils.copyFileToDirectory(file,destDirectory);
+        } catch (IOException e) {
+            e.printStackTrace();
+            if (logger.isErrorEnabled()) {
+                logger.error("复制文件 "+file.getName()+" 到 "+destDirectory.getAbsolutePath()+" 时，出错");
+            }
+        }
     }
 }

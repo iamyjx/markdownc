@@ -17,9 +17,11 @@ public class DefaultConverter implements Converter {
     private ProcessStrategy strategy;
     private String data;
     private String[] extensions;
-    private File sourceFile;
+    private File sourceFile;//指定文件、目录，或者默认目录
     private File destDirectory;
     private String defaultPath;
+    private int count;//处理文件数
+    private String classpath;
 
     public DefaultConverter(FileHelper fileHelper, ProcessStrategy strategy, String[] extensions) {
         this.fileHelper = fileHelper;
@@ -27,13 +29,28 @@ public class DefaultConverter implements Converter {
         this.extensions=extensions;
         defaultPath=this.strategy.getDefaultPath();
     }
+
     public void convert(String sourcePath,String destPath) {
+        try {
+            classpath=this.getClass().getResource("/").toURI().getPath();
+        } catch (URISyntaxException e) {
+            if (logger.isErrorEnabled()) {
+                logger.error("获取classpath出错："+e);
+            }
+            e.printStackTrace();
+        }
         sourceFile = new File(normalized(sourcePath));
         //append 一个build文件夹
         this.destDirectory = new File(normalized(destPath)+File.separator+"build");
         convert(sourceFile);
+        afterConvert();
+
     }
 
+    /**
+     * 转换主体，迭代
+     * @param sourceFile
+     */
     private void convert(File sourceFile) {
         if(!sourceFile.exists()) {
             if (logger.isInfoEnabled()) {
@@ -59,10 +76,11 @@ public class DefaultConverter implements Converter {
             markdownStr = strategy.afterProcess(markdownStr);
             //构建相对目录,目标文件的路径
             String relativePath = "";
-            if (sourceFile.getAbsolutePath().startsWith(this.sourceFile.getAbsolutePath())) {
-                relativePath = sourceFile.getAbsolutePath().replace(this.sourceFile.getAbsolutePath(), "");
-            }
+//            if (sourceFile.getAbsolutePath().startsWith(this.sourceFile.getAbsolutePath())) {
+                relativePath = sourceFile.getAbsolutePath().replace(this.sourceFile.getParentFile().getAbsolutePath(), "");
+//            }
 //            relativePath = relativePath + sourceFile.getName();
+            markdownStr=strategy.processRelativePath(markdownStr,relativePath);
             for (String str : extensions) {
                 relativePath=relativePath.replace(str, "html");
             }
@@ -70,8 +88,21 @@ public class DefaultConverter implements Converter {
             if (logger.isInfoEnabled()) {
                 logger.info("处理文件 "+sourceFile.getName()+" 完成");
             }
+            count+=1;
         }
+    }
 
+    /**
+     * 转换后的操作，如复制css文件等
+     */
+    private void afterConvert(){
+        if (logger.isInfoEnabled()) {
+            logger.info("总共处理 "+count+" 文件");
+        }
+        if (count > 0) {
+            //复制css文件到相对根目录
+            fileHelper.copyTo(new File(classpath+File.separator+"main.css"),new File(destDirectory,"css"));
+        }
 
     }
     private String normalized (String path) {
@@ -81,15 +112,6 @@ public class DefaultConverter implements Converter {
         }
         //处理classpath
         if(path.startsWith("classpath:")){
-            String classpath="";
-            try {
-                classpath=this.getClass().getResource("/").toURI().getPath();
-            } catch (URISyntaxException e) {
-                if (logger.isErrorEnabled()) {
-                    logger.error("获取classpath出错："+e);
-                }
-                e.printStackTrace();
-            }
             path=classpath+File.separator+path.replace("classpath:","");
         }
         return path;

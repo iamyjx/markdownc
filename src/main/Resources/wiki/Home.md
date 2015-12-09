@@ -1,9 +1,9 @@
 #个人wiki
-* [Linux](./Linux/Home.html)
-* [算法](./Algorithm/Home.html)
-* [Java](./Java/Home.html)
-* [Java Web](./Java_Web/Home.html)
-* [英语学习](./English/Home.html)
+* [Linux](./Linux/Home.md)
+* [算法](./Algorithm/Home.md)
+* [Java](./Java/Home.md)
+* [Java Web](./Java_Web/Home.md)
+* [英语学习](./English/Home.md)
 
 
 -------------------
