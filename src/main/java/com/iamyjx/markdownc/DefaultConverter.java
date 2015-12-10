@@ -1,6 +1,7 @@
 package com.iamyjx.markdownc;
 
 import com.iamyjx.markdownc.util.StringUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -39,12 +40,17 @@ public class DefaultConverter implements Converter {
             }
             e.printStackTrace();
         }
-        sourceFile = new File(normalized(sourcePath));
-        //append 一个build文件夹
-        this.destDirectory = new File(normalized(destPath)+File.separator+"build");
+
+        beforeConvert(sourcePath,destPath);
         convert(sourceFile);
         afterConvert();
 
+    }
+
+    private void beforeConvert(String sourcePath,String destPath) {
+        sourceFile = new File(normalized(sourcePath));
+        //append 一个build文件夹
+        this.destDirectory =sourceFile.isDirectory()?new File(normalized(destPath)+File.separator+"build"):new File(new File(normalized(destPath)).getParentFile(),"build");
     }
 
     /**
@@ -66,6 +72,8 @@ public class DefaultConverter implements Converter {
                 convert(file);
             }
         }else {
+            if(!fileHelper.isExtensions(sourceFile,extensions))return;
+
             if (logger.isInfoEnabled()) {
                 logger.info("开始处理文件 "+sourceFile.getName());
             }
@@ -75,11 +83,7 @@ public class DefaultConverter implements Converter {
             markdownStr = strategy.process(markdownStr);
             markdownStr = strategy.afterProcess(markdownStr);
             //构建相对目录,目标文件的路径
-            String relativePath = "";
-//            if (sourceFile.getAbsolutePath().startsWith(this.sourceFile.getAbsolutePath())) {
-                relativePath = sourceFile.getAbsolutePath().replace(this.sourceFile.getParentFile().getAbsolutePath(), "");
-//            }
-//            relativePath = relativePath + sourceFile.getName();
+            String relativePath = sourceFile.getAbsolutePath().replace(this.sourceFile.getParentFile().getAbsolutePath(), "");
             markdownStr=strategy.processRelativePath(markdownStr,relativePath);
             for (String str : extensions) {
                 relativePath=relativePath.replace(str, "html");
@@ -102,6 +106,9 @@ public class DefaultConverter implements Converter {
         if (count > 0) {
             //复制css文件到相对根目录
             fileHelper.copyTo(new File(classpath+File.separator+"main.css"),new File(destDirectory,"css"));
+            if (logger.isInfoEnabled()) {
+                logger.info("输出目录："+destDirectory);
+            }
         }
 
     }

@@ -18,4 +18,5 @@ public interface FileHelper {
     void write(String data,String destPath);
     Collection<File> list(File directory,String[] extensions);
     void copyTo(File srcFile,File destDirectory);
+    boolean isExtensions(File file,String[] extensions);
 }

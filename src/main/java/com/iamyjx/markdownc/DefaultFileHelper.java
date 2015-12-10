@@ -2,6 +2,7 @@ package com.iamyjx.markdownc;
 
 import com.iamyjx.markdownc.util.Assert;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -88,5 +89,11 @@ public class DefaultFileHelper implements FileHelper {
                 logger.error("复制文件 "+file.getName()+" 到 "+destDirectory.getAbsolutePath()+" 时，出错");
             }
         }
+    }
+
+    @Override
+    public boolean isExtensions(File file, String[] extensions) {
+        return file!=null&&FilenameUtils.isExtension(file.getName(),extensions);
+
     }
 }

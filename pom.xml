@@ -37,7 +37,69 @@
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
         </dependency>
+        <!-- MIG Layout: layout for Swing -->
+        <dependency>
+            <groupId>com.miglayout</groupId>
+            <artifactId>miglayout</artifactId>
+            <version>3.7.4</version>
+            <classifier>swing</classifier>
+        </dependency>
     </dependencies>
+    <build>
+        <finalName>Markdownc-${project.version}</finalName>
+
+        <plugins>
+            <!-- Use JDK 1.6 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+            <!-- Create an executable jar with dependencies -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.iamyjx.markdownc.App</mainClass>
+                        </manifest>
+                    </archive>
+                    <!-- Remove the "-jar-with-dependencies" at the end of the file -->
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- List the core committers -->
+    <developers>
+        <developer>
+            <id>iamyjx</id>
+            <name>iamyjx</name>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
     <!-- License -->
     <licenses>
         <license>
